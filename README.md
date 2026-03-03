@@ -2,7 +2,7 @@
 
 A comprehensive tutorial on Multiple Instance Learning (MIL) for histopathology using the `torchmil` library. This tutorial demonstrates how to train attention-based MIL models on Whole Slide Images (WSIs) from the CAMELYON16 dataset to detect breast cancer metastases.
 
-This tutorial is part of the [RISE MICCAI Tutorial Series](https://rise.miccai.org/tutorials/), which provides in-depth guides on various topics in medical image computing.
+This tutorial is part of the [RISE MICCAI Tutorial Series](https://tutorial.rise-miccai.org/intro.html), which provides in-depth guides on various topics in medical image computing.
 
 ## Overview
 
