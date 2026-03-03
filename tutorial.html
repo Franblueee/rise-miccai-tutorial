@@ -8291,6 +8291,12 @@ mask torch.Size([1, 1358])
     \mathbf{z} &amp;= \sum_{i} s_i \mathbf{h}_i \\
     \hat{Y} &amp; = \operatorname{Classifier}(\mathbf{z})
 \end{aligned}</p>
+<p>In our case case, $\mathbf{x}_i$ corresponds to the feature vector of the $i$-th patch, obtained from the CONCH model:
+$$
+\mathbf{x}_i = \operatorname{CONCH}(\text{patch}_i)
+$$
+In this example, $\operatorname{NeuralNet} = \operatorname{Identity}$. This means that we are using the features obtained from the CONCH model directly as input to the attention layer, without applying any additional transformation.</p>
+<p><strong>Importance of the patch encoder.</strong> The CONCH model is a powerful patch encoder that has been trained on a large dataset of histopathology images (patches). By using the features obtained from the CONCH model, we can leverage the knowledge learned by this model to improve the performance of our MIL model. The CONCH features capture important information about the tissue morphology and texture, which are essential for distinguishing between normal and tumor patches.</p>
 </div>
 </div>
 </div>
@@ -8299,7 +8305,7 @@ mask torch.Size([1, 1358])
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ABMIL</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
@@ -8340,9 +8346,8 @@ mask torch.Size([1, 1358])
         <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
-        <span class="n">H</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fc1</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>  <span class="c1"># (batch_size, bag_size, att_dim)</span>
-        <span class="n">H</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">H</span><span class="p">)</span> <span class="c1"># (batch_size, bag_size, att_dim)</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fc2</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>  <span class="c1"># (batch_size, bag_size, 1)</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fc1</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>  <span class="c1"># (batch_size, bag_size, att_dim)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fc2</span><span class="p">(</span><span class="n">U</span><span class="p">)</span>  <span class="c1"># (batch_size, bag_size, 1)</span>
 
         <span class="n">f_masked</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">masked_fill</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"-inf"</span><span class="p">))</span> <span class="c1"># (batch_size, bag_size, 1)</span>
 
